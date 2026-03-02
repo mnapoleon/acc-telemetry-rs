@@ -5,6 +5,7 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
+use crate::debug_logger::DebugLogger;
 use crate::shared_memory::PageFileGraphic;
 
 // ---------------------------------------------------------------------------
@@ -112,6 +113,17 @@ impl LapRecorder {
 
         // Detect lap completion (completed_laps counter incremented)
         if completed_laps > self.previous_completed_laps {
+            // Log the completed lap with its telemetry state
+            let _ = DebugLogger::log_telemetry_state(
+                self.previous_completed_laps,
+                self.previous_sector_index,
+                self.previous_last_sector_time,
+                i_last_time,
+                self.previous_sector_index,
+                self.previous_last_sector_time,
+                self.current_lap_sectors.len(),
+            );
+
             // A lap just finished! Record the final sector before resetting
             if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
                 let sector = SectorTime {
@@ -119,6 +131,11 @@ impl LapRecorder {
                     time_ms: self.previous_last_sector_time,
                     formatted: Self::format_time(self.previous_last_sector_time),
                 };
+                let _ = DebugLogger::log_sector_recorded(
+                    self.previous_completed_laps,
+                    self.previous_sector_index as usize,
+                    self.previous_last_sector_time,
+                );
                 self.current_lap_sectors.push(sector);
             }
 
@@ -141,6 +158,13 @@ impl LapRecorder {
                 timestamp: Utc::now().to_rfc3339(),
             };
 
+            // Log the completed lap
+            let _ = DebugLogger::log_lap_completed(
+                completed_laps,
+                i_last_time,
+                lap_record.sectors.len(),
+            );
+
             // Reset state for next lap
             self.previous_completed_laps = completed_laps;
             self.current_lap_number = completed_laps;
@@ -150,11 +174,28 @@ impl LapRecorder {
             self.previous_sector_index = -1;
             self.previous_last_sector_time = 0;
 
+            // Log the next lap start
+            let _ = DebugLogger::log_lap_start(
+                completed_laps + 1,
+                completed_laps,
+                current_sector_index,
+                last_sector_time,
+                i_last_time,
+            );
+
             return Some(lap_record);
         }
 
         // Detect sector boundary (sector index changed within same lap)
         if current_sector_index != self.previous_sector_index {
+            // Log sector transition
+            let _ = DebugLogger::log_sector_transition(
+                self.current_lap_number,
+                self.previous_sector_index,
+                current_sector_index,
+                last_sector_time,
+            );
+
             // Record the previous sector's time when transitioning to a new sector
             if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
                 let sector = SectorTime {
@@ -162,6 +203,11 @@ impl LapRecorder {
                     time_ms: self.previous_last_sector_time,
                     formatted: Self::format_time(self.previous_last_sector_time),
                 };
+                let _ = DebugLogger::log_sector_recorded(
+                    self.current_lap_number,
+                    self.previous_sector_index as usize,
+                    self.previous_last_sector_time,
+                );
                 self.current_lap_sectors.push(sector);
             }
 
