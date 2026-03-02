@@ -183,7 +183,7 @@ impl JsonExporter {
         let date = now.format("%Y-%m-%d").to_string();
         let time = now.format("%H%M%S").to_string();
 
-        format!("{}_{}_{}_{}. json", clean_track, clean_car, date, time)
+        format!("{}_{}_{}_{}.json", clean_track, clean_car, date, time)
     }
 
     /// Update session statistics based on current lap data.
