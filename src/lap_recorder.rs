@@ -110,22 +110,53 @@ impl LapRecorder {
             self.is_in_pit_during_lap = true;
         }
 
-        // Detect lap boundary: when sector index wraps back to 0 (or first time)
-        // This indicates we've crossed the start/finish line
-        let lap_boundary_crossed = completed_laps > self.previous_completed_laps
-            || (completed_laps == self.previous_completed_laps
-                && self.previous_sector_index != -1
-                && current_sector_index == 0
-                && self.previous_sector_index > 0);
+        // Detect lap completion (completed_laps counter incremented)
+        if completed_laps > self.previous_completed_laps {
+            // A lap just finished! Record the final sector before resetting
+            if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
+                let sector = SectorTime {
+                    index: self.previous_sector_index as usize,
+                    time_ms: self.previous_last_sector_time,
+                    formatted: Self::format_time(self.previous_last_sector_time),
+                };
+                self.current_lap_sectors.push(sector);
+            }
+
+            // Determine lap status
+            let status = if self.is_in_pit_during_lap {
+                LapStatus::Pit
+            } else if i_last_time == 0 {
+                LapStatus::Invalid
+            } else {
+                LapStatus::Normal
+            };
+
+            // Build lap record
+            let lap_record = LapRecord {
+                lap_number: completed_laps,
+                status,
+                total_time_ms: i_last_time,
+                total_time_formatted: Self::format_time(i_last_time),
+                sectors: self.current_lap_sectors.clone(),
+                timestamp: Utc::now().to_rfc3339(),
+            };
+
+            // Reset state for next lap
+            self.previous_completed_laps = completed_laps;
+            self.current_lap_number = completed_laps;
+            self.current_lap_sectors.clear();
+            self.is_in_pit_during_lap = false;
+            // Reset sector tracking for next lap
+            self.previous_sector_index = -1;
+            self.previous_last_sector_time = 0;
+
+            return Some(lap_record);
+        }
 
         // Detect sector boundary (sector index changed within same lap)
         if current_sector_index != self.previous_sector_index {
-            // Only record previous sector if we haven't crossed a lap boundary
-            // (to avoid recording the final sector of previous lap as first sector of new lap)
-            if !lap_boundary_crossed
-                && self.previous_last_sector_time > 0
-                && self.previous_sector_index != -1
-            {
+            // Record the previous sector's time when transitioning to a new sector
+            if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
                 let sector = SectorTime {
                     index: self.previous_sector_index as usize,
                     time_ms: self.previous_last_sector_time,
@@ -140,42 +171,6 @@ impl LapRecorder {
         } else if last_sector_time != self.previous_last_sector_time {
             // Sector time updated without index change (can happen on lap completion)
             self.previous_last_sector_time = last_sector_time;
-        }
-
-        // Detect lap completion (completed_laps counter incremented)
-        if completed_laps > self.previous_completed_laps {
-            // A lap just finished!
-            let lap_number = completed_laps;
-
-            // Determine lap status
-            let status = if self.is_in_pit_during_lap {
-                LapStatus::Pit
-            } else if i_last_time == 0 {
-                LapStatus::Invalid
-            } else {
-                LapStatus::Normal
-            };
-
-            // Build lap record
-            let lap_record = LapRecord {
-                lap_number,
-                status,
-                total_time_ms: i_last_time,
-                total_time_formatted: Self::format_time(i_last_time),
-                sectors: self.current_lap_sectors.clone(),
-                timestamp: Utc::now().to_rfc3339(),
-            };
-
-            // Reset state for next lap
-            self.previous_completed_laps = completed_laps;
-            self.current_lap_number = lap_number;
-            self.current_lap_sectors.clear();
-            self.is_in_pit_during_lap = false;
-            // Reset sector tracking for next lap
-            self.previous_sector_index = -1;
-            self.previous_last_sector_time = 0;
-
-            return Some(lap_record);
         }
 
         None
