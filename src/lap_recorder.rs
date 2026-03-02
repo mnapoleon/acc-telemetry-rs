@@ -141,6 +141,16 @@ impl LapRecorder {
             self.previous_last_sector_time = last_sector_time;
             self.previous_car_position = current_position;
             self.previous_completed_laps = completed_laps;
+
+            // Log initialization state from shared memory
+            let _ = DebugLogger::log_initialization(
+                current_position,
+                current_sector_index,
+                last_sector_time,
+                completed_laps,
+                i_last_time,
+            );
+
             return None;
         }
 

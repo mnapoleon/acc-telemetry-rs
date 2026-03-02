@@ -144,4 +144,19 @@ impl DebugLogger {
         );
         Self::log_message(&msg)
     }
+
+    /// Log recorder initialization state
+    pub fn log_initialization(
+        normalized_car_position: f32,
+        current_sector_index: i32,
+        last_sector_time: i32,
+        completed_laps: i32,
+        i_last_time: i32,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let msg = format!(
+            "INITIALIZATION: car_position={:.2} sector_index={} last_sector_time={} completed_laps={} total_time={}",
+            normalized_car_position, current_sector_index, last_sector_time, completed_laps, i_last_time
+        );
+        Self::log_message(&msg)
+    }
 }
