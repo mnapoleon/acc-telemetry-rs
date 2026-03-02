@@ -5,6 +5,7 @@
 
 #![cfg(windows)]
 
+mod debug_logger;
 mod json_export;
 mod lap_recorder;
 mod shared_memory;
@@ -19,6 +20,7 @@ use windows::Win32::System::Memory::{
 };
 use windows::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
 
+use debug_logger::DebugLogger;
 use json_export::JsonExporter;
 use lap_recorder::LapRecorder;
 use shared_memory::{decode_wstr, AcSessionType, PageFileGraphic, PageFileStatic};
@@ -110,6 +112,11 @@ fn to_wide_null(s: &str) -> Vec<u16> {
 // ---------------------------------------------------------------------------
 
 fn main() {
+    // Initialize debug logger
+    if let Err(e) = DebugLogger::init() {
+        eprintln!("Warning: Failed to initialize debug logger: {e}");
+    }
+
     let graphics_name = to_wide_null("Local\\acpmf_graphics");
     let static_name = to_wide_null("Local\\acpmf_static");
 
