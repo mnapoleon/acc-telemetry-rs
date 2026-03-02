@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "car_model": "ks_mazda_mx5_cup",
+    "track": "ks_brands_hatch",
+    "session_type": "Practice",
+    "player_name": "Michael Napoleon",
+    "recording_start": "2026-03-02T15:46:03.575790800+00:00",
+    "recording_end": "2026-03-02T15:50:08.633731200+00:00",
+    "total_laps_recorded": 5
+  },
+  "laps": [
+    {
+      "lap_number": 1,
+      "status": "normal",
+      "total_time_ms": 62235,
+      "total_time_formatted": "1:02.235",
+      "sectors": [],
+      "timestamp": "2026-03-02T15:46:03.577019100+00:00"
+    },
+    {
+      "lap_number": 2,
+      "status": "normal",
+      "total_time_ms": 60053,
+      "total_time_formatted": "1:00.053",
+      "sectors": [
+        {
+          "index": 0,
+          "time_ms": 25292,
+          "formatted": "0:25.292"
+        },
+        {
+          "index": 1,
+          "time_ms": 34921,
+          "formatted": "0:34.921"
+        }
+      ],
+      "timestamp": "2026-03-02T15:47:03.629788200+00:00"
+    },
+    {
+      "lap_number": 3,
+      "status": "normal",
+      "total_time_ms": 57668,
+      "total_time_formatted": "0:57.668",
+      "sectors": [
+        {
+          "index": 0,
+          "time_ms": 25132,
+          "formatted": "0:25.132"
+        },
+        {
+          "index": 1,
+          "time_ms": 34287,
+          "formatted": "0:34.287"
+        }
+      ],
+      "timestamp": "2026-03-02T15:48:01.302148200+00:00"
+    },
+    {
+      "lap_number": 4,
+      "status": "normal",
+      "total_time_ms": 55589,
+      "total_time_formatted": "0:55.589",
+      "sectors": [
+        {
+          "index": 0,
+          "time_ms": 23381,
+          "formatted": "0:23.381"
+        },
+        {
+          "index": 1,
+          "time_ms": 32183,
+          "formatted": "0:32.183"
+        }
+      ],
+      "timestamp": "2026-03-02T15:48:56.881889500+00:00"
+    },
+    {
+      "lap_number": 5,
+      "status": "normal",
+      "total_time_ms": 60322,
+      "total_time_formatted": "1:00.322",
+      "sectors": [
+        {
+          "index": 0,
+          "time_ms": 23406,
+          "formatted": "0:23.406"
+        },
+        {
+          "index": 1,
+          "time_ms": 36292,
+          "formatted": "0:36.292"
+        }
+      ],
+      "timestamp": "2026-03-02T15:49:57.206670800+00:00"
+    }
+  ],
+  "statistics": {
+    "valid_laps": 5,
+    "pit_laps": 0,
+    "invalid_laps": 0,
+    "best_lap_ms": 55589,
+    "best_lap_formatted": "0:55.589",
+    "average_lap_ms": 59173,
+    "average_lap_formatted": "0:59.173"
+  }
+}
