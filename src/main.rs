@@ -151,7 +151,7 @@ fn main() {
     println!("║          ACC Telemetry Recorder - Lap Time Logger            ║");
     println!("╚════════════════════════════════════════════════════════════════╝");
     println!();
-    println!("Waiting for active session (monitoring for completed_laps > 0)...");
+    println!("Waiting for active session (monitoring for car movement)...");
     println!("Press Escape to exit.");
     println!("═══════════════════════════════════════════════════════════════");
     println!();
@@ -164,8 +164,8 @@ fn main() {
         let graphics: &PageFileGraphic = unsafe { graphics_seg.as_ref() };
         let static_data: &PageFileStatic = unsafe { static_seg.as_ref() };
 
-        // Initialize exporter once we detect an active session (completed_laps > 0)
-        if exporter.is_none() && graphics.completed_laps > 0 {
+        // Initialize exporter once we detect an active session (car position indicates movement)
+        if exporter.is_none() && graphics.normalized_car_position > 0.0 {
             // Extract session metadata
             let car_model = decode_wstr(&static_data.car_model);
             let track = decode_wstr(&static_data.track);
