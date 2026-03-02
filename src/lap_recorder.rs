@@ -241,10 +241,10 @@ impl LapRecorder {
         }
 
         // ========================================================================
-        // STEP 3: Initialize New Lap When Not In Progress
+        // STEP 3: Initialize New Lap When Crossing Start/Finish Line
         // ========================================================================
-        if !self.lap_in_progress && current_position > 0.0 {
-            // Starting a new lap (or first update after session start)
+        if !self.lap_in_progress && crossed_line {
+            // Starting a new lap (crossed the line for the first time)
             self.lap_in_progress = true;
             self.current_lap_number = completed_laps + 1; // Next lap number
 
