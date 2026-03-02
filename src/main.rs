@@ -242,8 +242,8 @@ fn main() {
             break;
         }
 
-        // ~60 Hz polling rate
-        thread::sleep(Duration::from_millis(16));
+        // 50 Hz polling rate (matches ACC's telemetry update rate)
+        thread::sleep(Duration::from_millis(20));
     }
 
     // Segments dropped here, cleanup handled by Drop impl
