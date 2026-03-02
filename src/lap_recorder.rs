@@ -110,10 +110,22 @@ impl LapRecorder {
             self.is_in_pit_during_lap = true;
         }
 
-        // Detect lap completion (completed_laps counter incremented)
-        if completed_laps > self.previous_completed_laps {
-            // A lap just finished! Record the final sector before resetting
-            if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
+        // Detect lap boundary: when sector index wraps back to 0 (or first time)
+        // This indicates we've crossed the start/finish line
+        let lap_boundary_crossed = completed_laps > self.previous_completed_laps
+            || (completed_laps == self.previous_completed_laps
+                && self.previous_sector_index != -1
+                && current_sector_index == 0
+                && self.previous_sector_index > 0);
+
+        // Detect sector boundary (sector index changed within same lap)
+        if current_sector_index != self.previous_sector_index {
+            // Only record previous sector if we haven't crossed a lap boundary
+            // (to avoid recording the final sector of previous lap as first sector of new lap)
+            if !lap_boundary_crossed
+                && self.previous_last_sector_time > 0
+                && self.previous_sector_index != -1
+            {
                 let sector = SectorTime {
                     index: self.previous_sector_index as usize,
                     time_ms: self.previous_last_sector_time,
@@ -143,7 +155,7 @@ impl LapRecorder {
 
             // Reset state for next lap
             self.previous_completed_laps = completed_laps;
-            self.current_lap_number = completed_laps;
+            self.current_lap_number = lap_number;
             self.current_lap_sectors.clear();
             self.is_in_pit_during_lap = false;
             // Reset sector tracking for next lap
