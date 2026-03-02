@@ -84,6 +84,8 @@ pub struct LapRecorder {
     previous_car_position: f32,
     /// Flag indicating if we're actively tracking a lap in progress
     lap_in_progress: bool,
+    /// Flag indicating if we've ever seen sector 0 (required for complete lap recording)
+    has_seen_sector_zero: bool,
 }
 
 impl LapRecorder {
@@ -98,6 +100,7 @@ impl LapRecorder {
             current_lap_number: 0,
             previous_car_position: 0.0,
             lap_in_progress: false,
+            has_seen_sector_zero: false,
         }
     }
 
@@ -129,85 +132,88 @@ impl LapRecorder {
         }
 
         // ========================================================================
-        // STEP 1: DETECT START/FINISH LINE CROSSING
+        // STEP 1: INITIALIZE ON FIRST UPDATE
+        // ========================================================================
+        // On first update, capture current sector state but don't start lap yet.
+        // We wait for sector 0 to ensure we only record complete laps.
+        if self.previous_sector_index == -1 && !self.lap_in_progress {
+            self.previous_sector_index = current_sector_index;
+            self.previous_last_sector_time = last_sector_time;
+            self.previous_car_position = current_position;
+            self.previous_completed_laps = completed_laps;
+            return None;
+        }
+
+        // ========================================================================
+        // STEP 2: DETECT LINE CROSSING
         // ========================================================================
         let crossed_line =
             Self::detect_start_finish_crossing(current_position, self.previous_car_position);
 
-        // ========================================================================
-        // STEP 2: HANDLE LINE CROSSING (ATOMIC LAP COMPLETE + START)
-        // ========================================================================
-        if crossed_line {
-            let mut lap_to_return = None;
+        if crossed_line && self.lap_in_progress {
+            // We have a complete lap to record
 
-            // If we have a lap in progress, complete it first
-            if self.lap_in_progress {
-                // Log the completed lap with its telemetry state
-                let _ = DebugLogger::log_telemetry_state(
-                    completed_laps,
-                    current_sector_index,
-                    last_sector_time,
-                    i_last_time,
-                    self.previous_sector_index,
-                    self.previous_last_sector_time,
-                    self.current_lap_sectors.len(),
-                );
+            // Log the completed lap with its telemetry state
+            let _ = DebugLogger::log_telemetry_state(
+                completed_laps,
+                current_sector_index,
+                last_sector_time,
+                i_last_time,
+                self.previous_sector_index,
+                self.previous_last_sector_time,
+                self.current_lap_sectors.len(),
+            );
 
-                // Record the final sector if we have one
-                if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
-                    let final_sector = SectorTime {
-                        index: self.previous_sector_index as usize,
-                        time_ms: self.previous_last_sector_time,
-                        formatted: Self::format_time(self.previous_last_sector_time),
-                    };
-                    let _ = DebugLogger::log_sector_recorded(
-                        self.current_lap_number,
-                        self.previous_sector_index as usize,
-                        self.previous_last_sector_time,
-                    );
-                    self.current_lap_sectors.push(final_sector);
-                }
-
-                // Determine lap status
-                let status = if self.is_in_pit_during_lap {
-                    LapStatus::Pit
-                } else if i_last_time == 0 {
-                    LapStatus::Invalid
-                } else {
-                    LapStatus::Normal
+            // Record final sector (sector 2) if we have one
+            if self.previous_sector_index == 2 && self.previous_last_sector_time > 0 {
+                let final_sector = SectorTime {
+                    index: 2,
+                    time_ms: self.previous_last_sector_time,
+                    formatted: Self::format_time(self.previous_last_sector_time),
                 };
-
-                // Build lap record
-                let lap_record = LapRecord {
-                    lap_number: self.current_lap_number,
-                    status,
-                    total_time_ms: i_last_time,
-                    total_time_formatted: Self::format_time(i_last_time),
-                    sectors: self.current_lap_sectors.clone(),
-                    timestamp: Utc::now().to_rfc3339(),
-                };
-
-                // Log the completed lap
-                let _ = DebugLogger::log_lap_completed(
+                let _ = DebugLogger::log_sector_recorded(
                     self.current_lap_number,
-                    i_last_time,
-                    lap_record.sectors.len(),
+                    2,
+                    self.previous_last_sector_time,
                 );
-
-                lap_to_return = Some(lap_record);
+                self.current_lap_sectors.push(final_sector);
             }
 
-            // IMMEDIATELY start next lap (whether or not we completed one)
-            // This is the atomic operation that prevents sectors from being
-            // recorded under the wrong lap number
-            self.current_lap_number += 1;
+            // Determine lap status
+            let status = if self.is_in_pit_during_lap {
+                LapStatus::Pit
+            } else if i_last_time == 0 {
+                LapStatus::Invalid
+            } else {
+                LapStatus::Normal
+            };
+
+            // Build lap record
+            let lap_record = LapRecord {
+                lap_number: self.current_lap_number,
+                status,
+                total_time_ms: i_last_time,
+                total_time_formatted: Self::format_time(i_last_time),
+                sectors: self.current_lap_sectors.clone(),
+                timestamp: Utc::now().to_rfc3339(),
+            };
+
+            // Log the completed lap
+            let _ = DebugLogger::log_lap_completed(
+                self.current_lap_number,
+                i_last_time,
+                lap_record.sectors.len(),
+            );
+
+            // Reset for next lap
             self.current_lap_sectors.clear();
             self.is_in_pit_during_lap = false;
-            self.previous_sector_index = -1;
             self.previous_last_sector_time = 0;
-            self.lap_in_progress = true;
 
-            // Log new lap start
+            // Start next lap
+            self.current_lap_number += 1;
+            self.previous_sector_index = current_sector_index;
+
             let _ = DebugLogger::log_lap_start(
                 self.current_lap_number,
                 completed_laps,
@@ -220,23 +226,14 @@ impl LapRecorder {
             self.previous_car_position = current_position;
             self.previous_completed_laps = completed_laps;
 
-            return lap_to_return;
+            return Some(lap_record);
         }
 
         // ========================================================================
-        // STEP 3: DETECT SECTOR TRANSITIONS (NO LINE CROSSING)
+        // STEP 3: DETECT SECTOR INDEX CHANGES
         // ========================================================================
-        // Only process sectors if we have an active lap
-        if !self.lap_in_progress {
-            // Not tracking a lap yet, nothing to do
-            self.previous_car_position = current_position;
-            self.previous_completed_laps = completed_laps;
-            return None;
-        }
-
-        // Check for sector transitions
         if current_sector_index != self.previous_sector_index {
-            // Sector transition detected
+            // Sector index changed - we have a sector time to record
 
             // Log the transition
             let _ = DebugLogger::log_sector_transition(
@@ -246,19 +243,119 @@ impl LapRecorder {
                 last_sector_time,
             );
 
-            // Record the previous sector (not first entry into lap)
-            if self.previous_last_sector_time > 0 && self.previous_sector_index != -1 {
-                let sector = SectorTime {
-                    index: self.previous_sector_index as usize,
-                    time_ms: self.previous_last_sector_time,
-                    formatted: Self::format_time(self.previous_last_sector_time),
-                };
-                let _ = DebugLogger::log_sector_recorded(
-                    self.current_lap_number,
-                    self.previous_sector_index as usize,
-                    self.previous_last_sector_time,
-                );
-                self.current_lap_sectors.push(sector);
+            // Track if we've ever seen sector 0
+            if current_sector_index == 0 {
+                self.has_seen_sector_zero = true;
+            }
+
+            // Only process sectors if we've seen sector 0 at least once
+            if self.has_seen_sector_zero {
+                if current_sector_index == 0
+                    && self.previous_sector_index == 2
+                    && self.lap_in_progress
+                {
+                    // Lap boundary: moving from sector 2 to sector 0
+                    // Record final sector of current lap
+                    let final_sector = SectorTime {
+                        index: 2,
+                        time_ms: last_sector_time,
+                        formatted: Self::format_time(last_sector_time),
+                    };
+                    let _ = DebugLogger::log_sector_recorded(
+                        self.current_lap_number,
+                        2,
+                        last_sector_time,
+                    );
+                    self.current_lap_sectors.push(final_sector);
+
+                    // Log the completed lap with its telemetry state
+                    let _ = DebugLogger::log_telemetry_state(
+                        completed_laps,
+                        current_sector_index,
+                        last_sector_time,
+                        i_last_time,
+                        self.previous_sector_index,
+                        last_sector_time,
+                        self.current_lap_sectors.len(),
+                    );
+
+                    // Determine lap status
+                    let status = if self.is_in_pit_during_lap {
+                        LapStatus::Pit
+                    } else if i_last_time == 0 {
+                        LapStatus::Invalid
+                    } else {
+                        LapStatus::Normal
+                    };
+
+                    // Build lap record
+                    let lap_record = LapRecord {
+                        lap_number: self.current_lap_number,
+                        status,
+                        total_time_ms: i_last_time,
+                        total_time_formatted: Self::format_time(i_last_time),
+                        sectors: self.current_lap_sectors.clone(),
+                        timestamp: Utc::now().to_rfc3339(),
+                    };
+
+                    // Log the completed lap
+                    let _ = DebugLogger::log_lap_completed(
+                        self.current_lap_number,
+                        i_last_time,
+                        lap_record.sectors.len(),
+                    );
+
+                    // Reset for next lap
+                    self.current_lap_number += 1;
+                    self.current_lap_sectors.clear();
+                    self.is_in_pit_during_lap = false;
+                    self.lap_in_progress = true;
+
+                    let _ = DebugLogger::log_lap_start(
+                        self.current_lap_number,
+                        completed_laps,
+                        current_sector_index,
+                        last_sector_time,
+                        i_last_time,
+                    );
+
+                    // Update tracking
+                    self.previous_sector_index = current_sector_index;
+                    self.previous_last_sector_time = last_sector_time;
+                    self.previous_car_position = current_position;
+                    self.previous_completed_laps = completed_laps;
+
+                    return Some(lap_record);
+                } else if current_sector_index == 0 && !self.lap_in_progress {
+                    // First time entering sector 0 - start lap 1
+                    self.lap_in_progress = true;
+                    self.current_lap_number = 1;
+
+                    let _ = DebugLogger::log_lap_start(
+                        self.current_lap_number,
+                        completed_laps,
+                        current_sector_index,
+                        last_sector_time,
+                        i_last_time,
+                    );
+                } else if self.lap_in_progress && current_sector_index > 0 {
+                    // Normal sector transition within a lap (0→1 or 1→2)
+                    // Record the sector we just left
+                    let sector_just_left = current_sector_index - 1;
+                    if self.previous_last_sector_time > 0 {
+                        let sector = SectorTime {
+                            index: sector_just_left as usize,
+                            time_ms: self.previous_last_sector_time,
+                            formatted: Self::format_time(self.previous_last_sector_time),
+                        };
+                        let _ = DebugLogger::log_sector_recorded(
+                            self.current_lap_number,
+                            sector_just_left as usize,
+                            self.previous_last_sector_time,
+                        );
+                        self.current_lap_sectors.push(sector);
+                    }
+                }
             }
 
             // Update tracking
