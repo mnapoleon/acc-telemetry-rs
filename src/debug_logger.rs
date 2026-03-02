@@ -34,12 +34,13 @@ impl DebugLogger {
             .append(true)
             .open(&file_path)?;
 
+        // Print before moving file_path into the struct
+        println!("Debug log: {}", file_path.display());
+
         let logger = DebugLogger { file, file_path };
 
         // Store in global
         DEBUG_LOGGER.get_or_init(|| Mutex::new(logger));
-
-        println!("Debug log: {}", file_path.display());
 
         Ok(())
     }
