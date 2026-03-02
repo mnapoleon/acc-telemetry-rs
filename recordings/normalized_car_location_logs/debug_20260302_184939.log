@@ -1,0 +1,45 @@
+[18:50:08.530] SECTOR TRANSITION: lap=0 sector -1 -> 0 (time=0ms)
+[18:50:37.990] LAP START: lap_number=1 completed_laps=0 sector_index=0 last_sector_time=0 total_time=0
+[18:51:00.927] SECTOR TRANSITION: lap=1 sector 0 -> 1 (time=22905ms)
+[18:51:27.313] SECTOR TRANSITION: lap=1 sector 1 -> 2 (time=26370ms)
+[18:51:27.313] SECTOR RECORDED: lap=1 sector_index=1 time=22905ms
+[18:52:02.616] TELEMETRY: completed_laps=0 cur_sector=2 last_sector_time=26370 total_time=0 | prev_sector=2 prev_time=26370 sectors_count=1
+[18:52:02.616] SECTOR RECORDED: lap=1 sector_index=2 time=26370ms
+[18:52:02.616] LAP COMPLETED: lap=1 total_time=0ms sectors_recorded=2
+[18:52:02.637] SECTOR TRANSITION: lap=1 sector -1 -> 2 (time=26370ms)
+[18:52:02.677] SECTOR TRANSITION: lap=1 sector 2 -> 0 (time=35365ms)
+[18:52:02.677] SECTOR RECORDED: lap=1 sector_index=2 time=26370ms
+[18:52:24.762] SECTOR TRANSITION: lap=1 sector 0 -> 1 (time=22093ms)
+[18:52:24.762] SECTOR RECORDED: lap=1 sector_index=0 time=35365ms
+[18:52:50.421] SECTOR TRANSITION: lap=1 sector 1 -> 2 (time=25647ms)
+[18:52:50.421] SECTOR RECORDED: lap=1 sector_index=1 time=22093ms
+[18:53:21.993] LAP START: lap_number=2 completed_laps=1 sector_index=2 last_sector_time=25647 total_time=84640
+[18:53:22.033] SECTOR TRANSITION: lap=2 sector 2 -> 0 (time=31617ms)
+[18:53:22.033] SECTOR RECORDED: lap=2 sector_index=2 time=25647ms
+[18:53:42.781] SECTOR TRANSITION: lap=2 sector 0 -> 1 (time=20745ms)
+[18:53:42.781] SECTOR RECORDED: lap=2 sector_index=0 time=31617ms
+[18:54:07.901] SECTOR TRANSITION: lap=2 sector 1 -> 2 (time=25133ms)
+[18:54:07.901] SECTOR RECORDED: lap=2 sector_index=1 time=20745ms
+[18:54:38.997] TELEMETRY: completed_laps=2 cur_sector=2 last_sector_time=25133 total_time=79357 | prev_sector=2 prev_time=25133 sectors_count=6
+[18:54:38.997] SECTOR RECORDED: lap=2 sector_index=2 time=25133ms
+[18:54:38.997] LAP COMPLETED: lap=2 total_time=79357ms sectors_recorded=7
+[18:54:39.017] SECTOR TRANSITION: lap=2 sector -1 -> 2 (time=25133ms)
+[18:54:39.038] SECTOR TRANSITION: lap=2 sector 2 -> 0 (time=31135ms)
+[18:54:39.038] SECTOR RECORDED: lap=2 sector_index=2 time=25133ms
+[18:55:00.566] SECTOR TRANSITION: lap=2 sector 0 -> 1 (time=21520ms)
+[18:55:00.566] SECTOR RECORDED: lap=2 sector_index=0 time=31135ms
+[18:55:24.478] SECTOR TRANSITION: lap=2 sector 1 -> 2 (time=23921ms)
+[18:55:24.478] SECTOR RECORDED: lap=2 sector_index=1 time=21520ms
+[18:55:55.219] LAP START: lap_number=4 completed_laps=3 sector_index=2 last_sector_time=23921 total_time=77013
+[18:55:55.259] SECTOR TRANSITION: lap=4 sector 2 -> 0 (time=30783ms)
+[18:55:55.259] SECTOR RECORDED: lap=4 sector_index=2 time=23921ms
+[18:56:16.472] SECTOR TRANSITION: lap=4 sector 0 -> 1 (time=21201ms)
+[18:56:16.472] SECTOR RECORDED: lap=4 sector_index=0 time=30783ms
+[18:56:40.253] SECTOR TRANSITION: lap=4 sector 1 -> 2 (time=23785ms)
+[18:56:40.253] SECTOR RECORDED: lap=4 sector_index=1 time=21201ms
+[18:57:11.322] TELEMETRY: completed_laps=4 cur_sector=2 last_sector_time=23785 total_time=76224 | prev_sector=2 prev_time=23785 sectors_count=6
+[18:57:11.322] SECTOR RECORDED: lap=4 sector_index=2 time=23785ms
+[18:57:11.322] LAP COMPLETED: lap=4 total_time=76224ms sectors_recorded=7
+[18:57:11.343] SECTOR TRANSITION: lap=4 sector -1 -> 2 (time=23785ms)
+[18:57:11.364] SECTOR TRANSITION: lap=4 sector 2 -> 0 (time=31112ms)
+[18:57:11.364] SECTOR RECORDED: lap=4 sector_index=2 time=23785ms
