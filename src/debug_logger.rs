@@ -166,6 +166,15 @@ impl DebugLogger {
         Self::log_message(&msg)
     }
 
+    /// Log when sector 0 is confirmed to be at the start/finish line
+    pub fn log_sector_zero_detected(sample_number: u64) -> Result<(), Box<dyn std::error::Error>> {
+        let msg = format!(
+            "[{}] SECTOR ZERO CONFIRMED: Actual start/finish line crossing detected (not ACC default)",
+            sample_number
+        );
+        Self::log_message(&msg)
+    }
+
     /// Log raw telemetry state for every sample (called every 20ms)
     pub fn log_sample_state(
         sample_number: u64,
@@ -181,13 +190,12 @@ impl DebugLogger {
         current_lap_number: i32,
         lap_in_progress: bool,
         has_seen_sector_zero: bool,
-        just_completed_via_crossing: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "[{}] SAMPLE: pos={:.3} sector={} time={} laps={}/{} total_time={} | prev_pos={:.3} prev_sector={} prev_time={} our_lap={} lap_prog={} seen_s0={} cross_flag={}",
+            "[{}] SAMPLE: pos={:.3} sector={} time={} laps={}/{} total_time={} | prev_pos={:.3} prev_sector={} prev_time={} our_lap={} lap_prog={} seen_s0={}",
             sample_number, current_position, current_sector_index, last_sector_time,
             completed_laps, number_of_laps, i_last_time, previous_car_position, previous_sector_index,
-            previous_last_sector_time, current_lap_number, lap_in_progress, has_seen_sector_zero, just_completed_via_crossing
+            previous_last_sector_time, current_lap_number, lap_in_progress, has_seen_sector_zero
         );
         Self::log_message(&msg)
     }
