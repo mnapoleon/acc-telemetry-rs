@@ -1,0 +1,100 @@
+{
+    "track": "rt_oulton_park-fosters",
+    "number_of_sessions": 1,
+    "players": [
+        {
+            "name": "Michael Napoleon",
+            "car": "ks_ford_escort_mk1",
+            "skin": "classic_85"
+        }
+    ],
+    "sessions": [
+        {
+            "event": 0,
+            "name": "Practice",
+            "type": 1,
+            "lapsCount": 0,
+            "duration": 0,
+            "laps": [
+                {
+                    "lap": 0,
+                    "car": 0,
+                    "sectors": [
+                        20153,
+                        24917,
+                        30591
+                    ],
+                    "time": 75661,
+                    "cuts": 0,
+                    "tyre": "V70"
+                },
+                {
+                    "lap": 1,
+                    "car": 0,
+                    "sectors": [
+                        20451,
+                        24100,
+                        31905
+                    ],
+                    "time": 76456,
+                    "cuts": 0,
+                    "tyre": "V70"
+                },
+                {
+                    "lap": 2,
+                    "car": 0,
+                    "sectors": [
+                        20702,
+                        24949,
+                        29779
+                    ],
+                    "time": 75430,
+                    "cuts": 0,
+                    "tyre": "V70"
+                },
+                {
+                    "lap": 3,
+                    "car": 0,
+                    "sectors": [
+                        20172,
+                        23650,
+                        35590
+                    ],
+                    "time": 79412,
+                    "cuts": 0,
+                    "tyre": "V70"
+                },
+                {
+                    "lap": 4,
+                    "car": 0,
+                    "sectors": [
+                        19933,
+                        23905,
+                        30555
+                    ],
+                    "time": 74393,
+                    "cuts": 0,
+                    "tyre": "V70"
+                }
+            ],
+            "lapstotal": [
+                5
+            ],
+            "bestLaps": [
+                {
+                    "car": 0,
+                    "time": 74393,
+                    "lap": 4
+                }
+            ]
+        }
+    ],
+    "extras": [
+        {
+            "name": "bestlap",
+            "time": 74393
+        }
+    ],
+    "__raceIni": "[HEADER]\r\nVERSION=2\r\n__CM_FEATURE_SET=2\r\n\r\n[RACE]\r\nTRACK=rt_oulton_park\r\nCONFIG_TRACK=fosters\r\nMODEL=ks_ford_escort_mk1\r\nCARS=1\r\nAI_LEVEL=82\r\nDRIFT_MODE=0\r\nRACE_LAPS=4\r\nARM_FIRST_LAP=0\r\nFIXED_SETUP=0\r\nPENALTIES=0\r\nSKIN=classic_85\r\nMODEL_CONFIG=\r\nJUMP_START_PENALTY=0\r\n\r\n[GHOST_CAR]\r\nRECORDING=0\r\nPLAYING=0\r\nSECONDS_ADVANTAGE=0\r\nLOAD=0\r\nFILE=\r\nENABLED=0\r\n\r\n[LIGHTING]\r\nSUN_ANGLE=-4.55\r\nTIME_MULT=1.0\r\nCLOUD_SPEED=0.200\r\n__TRACK_GEOTAG_LONG=-2.6147\r\n__TRACK_TIMEZONE_BASE_OFFSET=0\r\n__TRACK_TIMEZONE_DTS=0\r\n__TRACK_GEOTAG_LAT=53.1072\r\n__TRACK_TIMEZONE_OFFSET=0\r\n__CM_WEATHER_CONTROLLER=pureCtrl\r\n__CM_WEATHER_TYPE=15\r\n\r\n[GROOVE]\r\nVIRTUAL_LAPS=10\r\nMAX_LAPS=30\r\nSTARTING_LAPS=0\r\n\r\n[TEMPERATURE]\r\nAMBIENT=15\r\nROAD=15\r\n\r\n[DYNAMIC_TRACK]\r\nSESSION_START=100\r\nRANDOMNESS=0\r\nLAP_GAIN=1\r\nSESSION_TRANSFER=100\r\n\r\n[WIND]\r\nSPEED_KMH_MIN=11.1\r\nSPEED_KMH_MAX=11.1\r\nDIRECTION_DEG=200\r\n\r\n[CAR_0]\r\nSETUP=\r\nSKIN=classic_85\r\nMODEL=-\r\nMODEL_CONFIG=\r\nBALLAST=1\r\nRESTRICTOR=0\r\n__CM_DRIVEN_DISTANCE=220119.088593703\r\nDRIVER_NAME=Michael Napoleon\r\nNATIONALITY=USA\r\nNATION_CODE=USA\r\n\r\n[WEATHER]\r\nNAME=sol_34_light_rain\r\n\r\n[LAP_INVALIDATOR]\r\nALLOWED_TYRES_OUT=-1\r\n\r\n[BENCHMARK]\r\nACTIVE=0\r\n\r\n[REPLAY]\r\nACTIVE=0\r\nFILENAME=temp\\AC_260226-130934_O_ac_legends_gtc_bizzarrini_5300_ks_silverstone1967_.acreplay\r\n\r\n[REMOTE]\r\nACTIVE=0\r\n\r\n[RESTART]\r\nACTIVE=0\r\n\r\n[__PREVIEW_GENERATION]\r\nACTIVE=0\r\n\r\n[OPTIONS]\r\nUSE_MPH=0\r\n\r\n[SESSION_0]\r\nNAME=Practice\r\nTYPE=1\r\nDURATION_MINUTES=0\r\nSPAWN_SET=HOTLAP_START\r\n\r\n",
+    "__quickDrive": "{\"Mode\":\"/Pages/Drive/QuickDrive_Practice.xaml\",\"ModeData\":\"{\\\"StartType\\\":\\\"HOTLAP_START\\\",\\\"Penalties\\\":false,\\\"PlayerBallast\\\":1,\\\"PlayerRestrictor\\\":0}\",\"CarId\":\"ks_ford_escort_mk1\",\"TrackId\":\"rt_oulton_park/fosters\",\"WeatherId\":\"*$pureCtrl\\tPure\\t\",\"RealConditions\":false,\"Temperature\":15.100000000000001,\"Time\":45777,\"TimeMultipler\":1,\"udt\":false,\"dtv\":\"2025-08-17T02:05:00.3663563-04:00\",\"tpc\":false,\"TrackPropertiesPresetFilename\":\"C:\\\\Users\\\\micha\\\\AppData\\\\Local\\\\AcTools Content Manager\\\\Presets\\\\Track States\\\\Optimum.cmpreset\",\"TrackPropertiesData\":\"{\\\"s\\\":1.0,\\\"t\\\":1.0,\\\"r\\\":0.0,\\\"g\\\":1,\\\"d\\\":\\\"Perfect track for hotlapping.\\\",\\\"w\\\":false}\",\"asc\":false,\"AssistsPresetFilename\":\"C:\\\\Users\\\\micha\\\\AppData\\\\Local\\\\AcTools Content Manager\\\\Presets\\\\Assists\\\\Practive_Shift_WithFuel_mechdamage.cmpreset\",\"AssistsData\":\"{\\\"IdealLine\\\":false,\\\"AutoBlip\\\":true,\\\"StabilityControl\\\":100.0,\\\"AutoBrake\\\":false,\\\"AutoShifter\\\":false,\\\"SlipSteam\\\":1.0,\\\"AutoClutch\\\":true,\\\"Abs\\\":2,\\\"TractionControl\\\":2,\\\"VisualDamage\\\":false,\\\"Damage\\\":50.0,\\\"TyreWear\\\":1.0,\\\"FuelConsumption\\\":1.0,\\\"TyreBlankets\\\":true}\",\"ico\":false,\"wsf\":11.100000000000001,\"wst\":11.100000000000001,\"wd\":200.0,\"rws\":false,\"rwd\":false,\"rcTimezones\":true,\"rcManTime\":false,\"rcManWind\":false,\"rcLw\":false,\"rte\":false,\"rti\":false,\"crt\":false}"
+}
