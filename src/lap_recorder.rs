@@ -86,6 +86,9 @@ pub struct LapRecorder {
     lap_in_progress: bool,
     /// Flag indicating if we've ever seen sector 0 (required for complete lap recording)
     has_seen_sector_zero: bool,
+    /// Flag to prevent duplicate lap completion on same line crossing event
+    /// Set when we complete a lap via line crossing, cleared on next non-line-crossing update
+    just_completed_via_crossing: bool,
 }
 
 impl LapRecorder {
@@ -101,6 +104,7 @@ impl LapRecorder {
             previous_car_position: 0.0,
             lap_in_progress: false,
             has_seen_sector_zero: false,
+            just_completed_via_crossing: false,
         }
     }
 
@@ -222,6 +226,13 @@ impl LapRecorder {
 
             // Start next lap
             self.current_lap_number += 1;
+
+            // CRITICAL: Set previous_sector_index to current to prevent stale sector state
+            // from triggering another lap completion in the next update cycle.
+            // When we detect line crossing (2->0), the next update might still see the same
+            // sector transition because telemetry updates don't guarantee state has changed.
+            // By setting previous = current, we ensure the next sector change won't immediately
+            // match the "sector 2->0" completion pattern for the newly started lap.
             self.previous_sector_index = current_sector_index;
 
             let _ = DebugLogger::log_lap_start(
@@ -236,8 +247,15 @@ impl LapRecorder {
             self.previous_car_position = current_position;
             self.previous_completed_laps = completed_laps;
 
+            // Mark that we just completed via line crossing to prevent sector-based
+            // completion from triggering on the same event in the next update
+            self.just_completed_via_crossing = true;
+
             return Some(lap_record);
         }
+
+        // Clear the flag if we didn't cross a line (normal update)
+        self.just_completed_via_crossing = false;
 
         // ========================================================================
         // STEP 3: DETECT SECTOR INDEX CHANGES
@@ -263,8 +281,10 @@ impl LapRecorder {
                 if current_sector_index == 0
                     && self.previous_sector_index == 2
                     && self.lap_in_progress
+                    && !self.just_completed_via_crossing
                 {
                     // Lap boundary: moving from sector 2 to sector 0
+                    // (but not if we just completed via line crossing to avoid duplicates)
                     // Record final sector of current lap
                     let final_sector = SectorTime {
                         index: 2,
