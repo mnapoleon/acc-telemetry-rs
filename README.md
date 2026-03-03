@@ -21,6 +21,50 @@ A Windows-only Rust application that automatically records lap times and sector 
 - 🔄 **Session Changes** - Handles track/car changes gracefully
 - ⏱️ **Pit Detection** - Identifies and excludes pit laps from averages
 
+## How It Works
+
+### Lap Detection State Machine
+
+The lap recorder uses a state machine to ensure complete and accurate lap recordings. The system only records complete laps (starting from sector 0) to avoid partial or invalid data.
+
+```mermaid
+stateDiagram-v2
+    [*] --> UNINITIALIZED
+    
+    UNINITIALIZED --> WAITING_FOR_SECTOR_ZERO: First update() call<br/>initialize previous_sector_index
+    
+    WAITING_FOR_SECTOR_ZERO --> LAP_IN_PROGRESS: current_sector_index changes to 0<br/>set has_seen_sector_zero=true<br/>start lap 1
+    
+    LAP_IN_PROGRESS --> LAP_IN_PROGRESS: Sector index changes<br/>(0→1 or 1→2)<br/>record previous sector time
+    
+    LAP_IN_PROGRESS --> LAP_COMPLETE: Sector 2→0 transition<br/>OR line crossing detected<br/>record sector 2<br/>build lap record
+    
+    LAP_COMPLETE --> LAP_IN_PROGRESS: Lap returned<br/>increment lap number<br/>clear sectors<br/>reset state
+    
+    LAP_COMPLETE --> [*]
+```
+
+#### State Descriptions
+
+- **UNINITIALIZED:** Initial state when `LapRecorder` is created. Waiting for first telemetry update.
+  
+- **WAITING_FOR_SECTOR_ZERO:** Telemetry data is being received and `previous_sector_index` is initialized, but we haven't seen sector 0 yet. Recording doesn't start until we've confirmed at least one complete sector cycle exists.
+  
+- **LAP_IN_PROGRESS:** Currently recording a lap. Transitions occur when `current_sector_index` changes:
+  - Entering sector 1 from 0 → record sector 0's time
+  - Entering sector 2 from 1 → record sector 1's time
+  - Entering sector 0 from 2 → record sector 2's time and move to LAP_COMPLETE
+  
+- **LAP_COMPLETE:** Lap record has been built and is ready to return. After returning, immediately starts the next lap and returns to LAP_IN_PROGRESS.
+
+#### Key Points
+
+- **No partial laps:** Recording only starts after sector 0 is seen, ensuring complete [0, 1, 2, ...] cycles
+- **Atomic transitions:** Lap completion and start happen in single update cycle to prevent sector misassignment
+- **Sector-indexed recording:** Sectors are recorded when entering the NEXT sector (uses `last_sector_time` from just-completed sector)
+- **Line crossing detection:** Uses `normalized_car_position` wrap (>0.5 → <0.5) to detect lap boundaries in addition to sector transitions
+- **Complete data guarantee:** All recorded laps contain all sectors in correct order with no duplicates or data leakage
+
 ## Quick Start
 
 1. **Build** the application (requires Rust + MSVC toolchain on Windows)
