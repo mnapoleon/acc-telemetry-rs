@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "car_model": "ks_ford_escort_mk1",
+    "track": "rt_oulton_park",
+    "session_type": "Practice",
+    "player_name": "Michael Napoleon",
+    "recording_start": "2026-03-03T19:48:20.111382200+00:00",
+    "recording_end": "2026-03-03T19:55:24.494503400+00:00",
+    "total_laps_recorded": 0
+  },
+  "laps": [],
+  "statistics": {
+    "valid_laps": 0,
+    "pit_laps": 0,
+    "invalid_laps": 0,
+    "best_lap_ms": null,
+    "best_lap_formatted": null,
+    "average_lap_ms": null,
+    "average_lap_formatted": null
+  }
+}
