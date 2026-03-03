@@ -89,6 +89,8 @@ pub struct LapRecorder {
     /// Flag to prevent duplicate lap completion on same line crossing event
     /// Set when we complete a lap via line crossing, cleared on next non-line-crossing update
     just_completed_via_crossing: bool,
+    /// Sample counter - increments on every update() call
+    sample_number: u64,
 }
 
 impl LapRecorder {
@@ -105,6 +107,7 @@ impl LapRecorder {
             lap_in_progress: false,
             has_seen_sector_zero: false,
             just_completed_via_crossing: false,
+            sample_number: 0,
         }
     }
 
@@ -122,6 +125,9 @@ impl LapRecorder {
     ///
     /// Returns `Some(LapRecord)` if a lap was just completed, `None` otherwise.
     pub fn update(&mut self, graphics: &PageFileGraphic) -> Option<LapRecord> {
+        // Increment sample counter on every update
+        self.sample_number += 1;
+
         // Read current telemetry values
         let current_position = graphics.normalized_car_position;
         let completed_laps = graphics.completed_laps;
@@ -129,6 +135,25 @@ impl LapRecorder {
         let last_sector_time = graphics.last_sector_time;
         let is_in_pit = graphics.is_in_pit;
         let i_last_time = graphics.i_last_time;
+        let number_of_laps = graphics.number_of_laps;
+
+        // Log this sample's raw telemetry state
+        let _ = DebugLogger::log_sample_state(
+            self.sample_number,
+            current_position,
+            current_sector_index,
+            last_sector_time,
+            completed_laps,
+            number_of_laps,
+            i_last_time,
+            self.previous_car_position,
+            self.previous_sector_index,
+            self.previous_last_sector_time,
+            self.current_lap_number,
+            self.lap_in_progress,
+            self.has_seen_sector_zero,
+            self.just_completed_via_crossing,
+        );
 
         // Track pit status during this lap
         if is_in_pit == 1 {
@@ -148,6 +173,7 @@ impl LapRecorder {
 
             // Log initialization state from shared memory
             let _ = DebugLogger::log_initialization(
+                self.sample_number,
                 current_position,
                 current_sector_index,
                 last_sector_time,
@@ -169,6 +195,7 @@ impl LapRecorder {
 
             // Log the completed lap with its telemetry state
             let _ = DebugLogger::log_telemetry_state(
+                self.sample_number,
                 completed_laps,
                 current_sector_index,
                 last_sector_time,
@@ -186,6 +213,7 @@ impl LapRecorder {
                     formatted: Self::format_time(self.previous_last_sector_time),
                 };
                 let _ = DebugLogger::log_sector_recorded(
+                    self.sample_number,
                     self.current_lap_number,
                     2,
                     self.previous_last_sector_time,
@@ -214,6 +242,7 @@ impl LapRecorder {
 
             // Log the completed lap
             let _ = DebugLogger::log_lap_completed(
+                self.sample_number,
                 self.current_lap_number,
                 i_last_time,
                 lap_record.sectors.len(),
@@ -236,6 +265,7 @@ impl LapRecorder {
             self.previous_sector_index = current_sector_index;
 
             let _ = DebugLogger::log_lap_start(
+                self.sample_number,
                 self.current_lap_number,
                 completed_laps,
                 current_sector_index,
@@ -265,6 +295,7 @@ impl LapRecorder {
 
             // Log the transition
             let _ = DebugLogger::log_sector_transition(
+                self.sample_number,
                 self.current_lap_number,
                 self.previous_sector_index,
                 current_sector_index,
@@ -292,6 +323,7 @@ impl LapRecorder {
                         formatted: Self::format_time(last_sector_time),
                     };
                     let _ = DebugLogger::log_sector_recorded(
+                        self.sample_number,
                         self.current_lap_number,
                         2,
                         last_sector_time,
@@ -300,6 +332,7 @@ impl LapRecorder {
 
                     // Log the completed lap with its telemetry state
                     let _ = DebugLogger::log_telemetry_state(
+                        self.sample_number,
                         completed_laps,
                         current_sector_index,
                         last_sector_time,
@@ -330,6 +363,7 @@ impl LapRecorder {
 
                     // Log the completed lap
                     let _ = DebugLogger::log_lap_completed(
+                        self.sample_number,
                         self.current_lap_number,
                         i_last_time,
                         lap_record.sectors.len(),
@@ -342,6 +376,7 @@ impl LapRecorder {
                     self.lap_in_progress = true;
 
                     let _ = DebugLogger::log_lap_start(
+                        self.sample_number,
                         self.current_lap_number,
                         completed_laps,
                         current_sector_index,
@@ -362,6 +397,7 @@ impl LapRecorder {
                     self.current_lap_number = 1;
 
                     let _ = DebugLogger::log_lap_start(
+                        self.sample_number,
                         self.current_lap_number,
                         completed_laps,
                         current_sector_index,
@@ -379,6 +415,7 @@ impl LapRecorder {
                             formatted: Self::format_time(self.previous_last_sector_time),
                         };
                         let _ = DebugLogger::log_sector_recorded(
+                            self.sample_number,
                             self.current_lap_number,
                             sector_just_left as usize,
                             self.previous_last_sector_time,

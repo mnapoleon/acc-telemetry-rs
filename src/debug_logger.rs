@@ -74,6 +74,7 @@ impl DebugLogger {
 
     /// Log a lap start event
     pub fn log_lap_start(
+        sample_number: u64,
         lap_number: i32,
         completed_laps: i32,
         current_sector_index: i32,
@@ -81,54 +82,58 @@ impl DebugLogger {
         i_last_time: i32,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "LAP START: lap_number={} completed_laps={} sector_index={} last_sector_time={} total_time={}",
-            lap_number, completed_laps, current_sector_index, last_sector_time, i_last_time
+            "[{}] LAP START: lap_number={} completed_laps={} sector_index={} last_sector_time={} total_time={}",
+            sample_number, lap_number, completed_laps, current_sector_index, last_sector_time, i_last_time
         );
         Self::log_message(&msg)
     }
 
     /// Log a sector transition
     pub fn log_sector_transition(
+        sample_number: u64,
         lap_number: i32,
         from_sector: i32,
         to_sector: i32,
         sector_time: i32,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "SECTOR TRANSITION: lap={} sector {} -> {} (time={}ms)",
-            lap_number, from_sector, to_sector, sector_time
+            "[{}] SECTOR TRANSITION: lap={} sector {} -> {} (time={}ms)",
+            sample_number, lap_number, from_sector, to_sector, sector_time
         );
         Self::log_message(&msg)
     }
 
     /// Log a sector being recorded
     pub fn log_sector_recorded(
+        sample_number: u64,
         lap_number: i32,
         sector_index: usize,
         time_ms: i32,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "SECTOR RECORDED: lap={} sector_index={} time={}ms",
-            lap_number, sector_index, time_ms
+            "[{}] SECTOR RECORDED: lap={} sector_index={} time={}ms",
+            sample_number, lap_number, sector_index, time_ms
         );
         Self::log_message(&msg)
     }
 
     /// Log final lap record
     pub fn log_lap_completed(
+        sample_number: u64,
         lap_number: i32,
         total_time_ms: i32,
         sector_count: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "LAP COMPLETED: lap={} total_time={}ms sectors_recorded={}",
-            lap_number, total_time_ms, sector_count
+            "[{}] LAP COMPLETED: lap={} total_time={}ms sectors_recorded={}",
+            sample_number, lap_number, total_time_ms, sector_count
         );
         Self::log_message(&msg)
     }
 
     /// Log raw telemetry state
     pub fn log_telemetry_state(
+        sample_number: u64,
         completed_laps: i32,
         current_sector_index: i32,
         last_sector_time: i32,
@@ -138,8 +143,8 @@ impl DebugLogger {
         current_lap_sectors_count: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "TELEMETRY: completed_laps={} cur_sector={} last_sector_time={} total_time={} | prev_sector={} prev_time={} sectors_count={}",
-            completed_laps, current_sector_index, last_sector_time, i_last_time,
+            "[{}] TELEMETRY: completed_laps={} cur_sector={} last_sector_time={} total_time={} | prev_sector={} prev_time={} sectors_count={}",
+            sample_number, completed_laps, current_sector_index, last_sector_time, i_last_time,
             previous_sector_index, previous_last_sector_time, current_lap_sectors_count
         );
         Self::log_message(&msg)
@@ -147,6 +152,7 @@ impl DebugLogger {
 
     /// Log recorder initialization state
     pub fn log_initialization(
+        sample_number: u64,
         normalized_car_position: f32,
         current_sector_index: i32,
         last_sector_time: i32,
@@ -154,8 +160,34 @@ impl DebugLogger {
         i_last_time: i32,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let msg = format!(
-            "INITIALIZATION: car_position={:.2} sector_index={} last_sector_time={} completed_laps={} total_time={}",
-            normalized_car_position, current_sector_index, last_sector_time, completed_laps, i_last_time
+            "[{}] INITIALIZATION: car_position={:.2} sector_index={} last_sector_time={} completed_laps={} total_time={}",
+            sample_number, normalized_car_position, current_sector_index, last_sector_time, completed_laps, i_last_time
+        );
+        Self::log_message(&msg)
+    }
+
+    /// Log raw telemetry state for every sample (called every 20ms)
+    pub fn log_sample_state(
+        sample_number: u64,
+        current_position: f32,
+        current_sector_index: i32,
+        last_sector_time: i32,
+        completed_laps: i32,
+        number_of_laps: i32,
+        i_last_time: i32,
+        previous_car_position: f32,
+        previous_sector_index: i32,
+        previous_last_sector_time: i32,
+        current_lap_number: i32,
+        lap_in_progress: bool,
+        has_seen_sector_zero: bool,
+        just_completed_via_crossing: bool,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let msg = format!(
+            "[{}] SAMPLE: pos={:.3} sector={} time={} laps={}/{} total_time={} | prev_pos={:.3} prev_sector={} prev_time={} our_lap={} lap_prog={} seen_s0={} cross_flag={}",
+            sample_number, current_position, current_sector_index, last_sector_time,
+            completed_laps, number_of_laps, i_last_time, previous_car_position, previous_sector_index,
+            previous_last_sector_time, current_lap_number, lap_in_progress, has_seen_sector_zero, just_completed_via_crossing
         );
         Self::log_message(&msg)
     }
